@@ -26,7 +26,7 @@ public class SimulationStatistics {
     /** Pole hodnot zatizeni jednotlivych uzlu. */
     private double[] loads;
     
-    /** Statistiky doby cinnosti na serveru 2. */
+    /** Statistiky doby cinnosti na serveru 2.ljholjl */
     private Statistics operationStatsServer2;
 
     
