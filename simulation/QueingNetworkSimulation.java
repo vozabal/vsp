@@ -9,6 +9,7 @@ import simulation.nodes.ExponentialTransactionGenerator;
 import simulation.nodes.GaussianServer;
 import simulation.nodes.GaussianTransactionGenerator;
 import simulation.nodes.OutputNode;
+import simulation.nodes.Probe;
 import simulation.nodes.Splitter;
 
 
@@ -36,6 +37,8 @@ public class QueingNetworkSimulation extends JSimSimulation {
     
     /** Server 4. */
     private AbstractServer server4;
+    
+    private Probe probe;
     
     /** Vystupni uzel sluzici k zachycovani nekterych statistik. */
     private OutputNode outputNode;
@@ -129,8 +132,9 @@ public class QueingNetworkSimulation extends JSimSimulation {
             server3 = new GaussianServer("server 3", this, par.getTs3(), par.getC() * par.getTs3());
             server4 = new GaussianServer("server 4", this, par.getTs4(), par.getC() * par.getTs4());
         }
+        probe = new Probe(server4, this);
         Splitter splitter1 = new Splitter(server3, par.getP2(), server2);
-        Splitter splitter2 = new Splitter(server4, par.getP3(), server1);
+        Splitter splitter2 = new Splitter(probe, par.getP3(), server1);
         outputNode = new OutputNode(this);
         spy = new Spy("Spy", this, server1, server2, server3, server4);
         
