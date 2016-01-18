@@ -1,4 +1,4 @@
-package simulation.nodes;
+package nodes;
 
 import cz.zcu.fav.kiv.jsim.JSimException;
 import cz.zcu.fav.kiv.jsim.JSimInvalidParametersException;
@@ -11,63 +11,71 @@ import simulation.Transaction;
 
 
 
+
+
+
 /**
- * Abstraktni generator pozadavku. V nahodnych intervalech generuje nove prichozi pozadavky.
- * Potomci musi implementovat metodu {@link #interval()}, ktera vraci nahodnou dobu intervalu
- * do prichodu dalsiho pozadavku (v zavislosti na danem rozdeleni).
+ * The abstract transactions generator. Generates new transactions arrivals in random intervals.
+ * Descendants have to implement the method called {@link #interval()}, which returns interval random times
+ * until the next transaction arrival. (depending on the distribution).
  *
  * @author Miroslav Vozabal
  */
-public abstract class AbstractTransactionGenerator extends JSimProcess {
+public abstract class AbstractTransGenerator extends JSimProcess {
     
-    /** Nasledujici uzel v simulaci. */
-    private Receiver nextReceiver;
+    /** The next simulation node. */
+    private IReceiver nextReceiver;
 
     
     /**
-     * Vytvori generator s danym jmenem.
-     * @param name - jmeno uzlu
-     * @param parent - rodicovska simulace
+     * Creates a generator with a particular name.
+     * @param name - the node name
+     * @param parent - the parent simulation
      * @throws JSimSimulationAlreadyTerminatedException
      * @throws JSimInvalidParametersException
      * @throws JSimTooManyProcessesException
      */
-    public AbstractTransactionGenerator(String name, JSimSimulation parent)
+    public AbstractTransGenerator(String name, JSimSimulation parent)
             throws JSimSimulationAlreadyTerminatedException, JSimInvalidParametersException, JSimTooManyProcessesException {
         this(name, parent, null);
     }
     
     
+    
     /**
-     * Vytvori generator s danym jmenem.
-     * @param name - jmeno uzlu
-     * @param parent - rodicovska simulace
-     * @param nextReceiver - nasledujici uzel v simulaci
+     * Creates a generator with a particular name.
+     * @param name - the node name
+     * @param parent - the parent simulation
+     * @param nextReceiver - the next simulation node
      * @throws JSimSimulationAlreadyTerminatedException
      * @throws JSimInvalidParametersException
      * @throws JSimTooManyProcessesException
      */
-    public AbstractTransactionGenerator(String name, JSimSimulation parent, Receiver nextReceiver)
+    public AbstractTransGenerator(String name, JSimSimulation parent, IReceiver nextReceiver)
             throws JSimSimulationAlreadyTerminatedException, JSimInvalidParametersException, JSimTooManyProcessesException {
         super(name, parent);
         this.nextReceiver = nextReceiver;
     }
     
     
+    
     /**
-     * Generuje nahodnou dobu intervalu mezi prichodem dvou pozadavku do systemu v zaislosti
-     * na danem rozdeleni.
-     * @return nahodny interval
+     * Generates a random interval between 2 transactions arrivals into the system (depending on the distribution).
+     * 
+     * @return the random interval
      */
     protected abstract double interval();
     
     
+    
     /**
-     * V nahodnych intervalech generuje nove pozadavky prichazejici do systemu.
+     * Generates new transactions in random intervals which arrive into the system.
      */
+    
     @Override
     protected void life() {
         JSimLink link;
+        
         try {
             while (true) {
                 link = new JSimLink(new Transaction(myParent.getCurrentTime()));
@@ -80,24 +88,23 @@ public abstract class AbstractTransactionGenerator extends JSimProcess {
         }
     }
 
-
+    
     
     /**
-     * Vraci nasledujici uzel.
-     * @return nasledujici uzel
+     * Returns the next node.
+     * @return the next node
      */
-    public Receiver getNextReceiver() {
+    public IReceiver getNextReceiver() {
         return nextReceiver;
     }
 
-
+    
     
     /**
-     * Nastavi nasledujic uzel.
-     * @param nextReceiver - nasledujici uzel
+     * Sets up the next node.
+     * @param nextReceiver - the next node
      */
-    public void setNextReceiver(Receiver nextReceiver) {
+    public void setNextReceiver(IReceiver nextReceiver) {
         this.nextReceiver = nextReceiver;
     }
-
 }

@@ -6,41 +6,42 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import cz.zcu.fav.kiv.jsim.JSimException;
-import generator.RandomNumber;
-import simulation.QueingNetworkSimulation.Distribution;
+import generator.NormalDistributionGenerator;
+import simulation.QueueSimulation.Distribution;
+
 
 
 /**
- * Hlavni trida aplikace s funkci main. Slouzi ke spousteni programu.
+ * The main class with the main method. It is used like the entry point of the application.
  *
  * @author Miroslav Vozabal
  */
 public class Main {
     
-    /** Defaultni pocet pozadavku, ktere se nechaji projit simulaci. */
-    public static final int DEFAULT_TRANSACTION_COUNT = 100000;
+    /** The default count of the transactions which go through the system. */
+    public static final int TRANSACTION_COUNT = 100000;
     
-    /** Koeficient variace pro prvni spusteni simulace s normalnim rozdelenim. */
-    public static final double DEFAULT_COEF_1 = 0.02;
+    /** The coefficient of the variance for the first normal distribution simulation. */
+    public static final double VARIANCE_COEFFICIENT_1 = 0.02;
     
-    /** Koeficient variace pro druhe spusteni simulace s normalnim rozdelenim. */
-    public static final double DEFAULT_COEF_2 = 0.3;
+    /** The coefficient of the variance for the second normal distribution simulation. */
+    public static final double VARIANCE_COEFFICIENT_2 = 0.3;
     
-    /** Koeficient variace pro treti spusteni simulace s normalnim rozdelenim. */
-    public static final double DEFAULT_COEF_3 = 0.7;
+    /** The coefficient of the variance for the third normal distribution simulation. */
+    public static final double VARIANCE_COEFFICIENT_3 = 0.7;
     
-    /** Nazev konfiguracniho souboru s parametry site front. */
-    public static final String CONFIG_FILE = "res\\simulation.properties";
+    /** The name of the configuration file with the parameters of the queue network. */
+    public static final String CONFIGURATION_FILE_NAME = "res\\simulation.properties";
     
-    /** Horizontalni oddelovac (pro ucely vypisu do konzole). */
-    public static final String LINE = "\n---------------------------------------------------------------------\n";
+    /** The horizontal row which separates records. */
+    public static final String ROW = "\n---------------------------------------------------------------------\n";
     
-    /** Zvyrazneni nadpisu (pro ucely vypisu do konzole). */
-    public static final String HIGHLIGHT = "=======";
+    /** The highlight of the heading. */
+    public static final String HIGHLIGHT_ROW = "=======";
     
     
     /*
-     * Vypnuti logovani z JSimu.
+     * JSim switching off.
      */
     static {
         Logger.getLogger("").setLevel(Level.OFF);
@@ -48,168 +49,168 @@ public class Main {
     
     
     /**
-     * Hlavni funkce programu. Parsuje argumenty prikazove radky a spousti simulaci
-     * s pozadovanymi parametry.
+     * The main entrance of the application. It parses the parameters of the command line and runs the simulation. With regarded parameters
      * 
-     * @param args argumenty prikazove radky
+     * 
+     * @param args the arguments of the command line
      */
     public static void main(String[] args) {
         if (args.length == 2) {
             try {
-                int transactionCount = Integer.parseInt(args[0]);
+                int transactionNumber = Integer.parseInt(args[0]);
                 if (args[1].equalsIgnoreCase("EXP"))
-                    runSimulation(Distribution.EXPONENTIAL, transactionCount);
+                    startSimulation(Distribution.EXPONENTIAL, transactionNumber);
                 else if (args[1].equalsIgnoreCase("GAUSS"))
-                    runSimulation(Distribution.GAUSSIAN, transactionCount);
+                    startSimulation(Distribution.GAUSSIAN, transactionNumber);
                 else
-                    printUsage();
+                    printIntroduction();
             } catch (NumberFormatException e) {
-                printUsage();
+                printIntroduction();
                 return;
             }
         } else if (args.length == 0) {
-            runSimulation(Distribution.EXPONENTIAL, DEFAULT_TRANSACTION_COUNT);
-            System.out.println(LINE);
-            runSimulation(Distribution.GAUSSIAN, DEFAULT_TRANSACTION_COUNT);
+            startSimulation(Distribution.EXPONENTIAL, TRANSACTION_COUNT);
+            System.out.println(ROW);
+            startSimulation(Distribution.GAUSSIAN, TRANSACTION_COUNT);
         } else if (args.length == 4) {
             if (args[0].equals("--test-generator")) {
                 try {
-                    int count = Integer.parseInt(args[1]);
+                    int number = Integer.parseInt(args[1]);
                     double meanValue = Double.parseDouble(args[2]);
                     double standardDeviation = Double.parseDouble(args[3]);
-                    RandomNumber.testGauss(count, meanValue, standardDeviation);
+                    NormalDistributionGenerator.verifyGauss(number, meanValue, standardDeviation);
                 } catch (NumberFormatException e) {
                     e.printStackTrace();
-                    printUsage();
+                    printIntroduction();
                 }
             } else {
-                printUsage();
+                printIntroduction();
             }
         } else {
-            printUsage();
+            printIntroduction();
         }
     }
     
-    
+    //TODO: zkontrolovat link
     /**
-     * Nacte z konfiguracniho souboru parametry site front a spusti simulaci pro dany pocet
-     * pozadavku. Pokud je parametr distribution roven 
-     * {@link cz.zcu.kiv.vsp.simulation.QueingNetworkSimulation.Distribution#GAUSSIAN Distribution.GAUSSIAN},
-     * spusti simulaci trikrat s ruznymi koeficienty variace.
+     * Loads the parameters of the queue network from the configuration file and runs the simulation
+     * for the particular count of transactions. If the distribution parametr is equal to 
+     * {@link cz.zcu.QueueSimulation.vsp.simulation.QueingNetworkSimulation.Distribution#GAUSSIAN Distribution.GAUSSIAN},
+     * it starts the simulation with different variance coefficients for tree times.
      *  
-     * @param distribution rozdeleni nahodnych velicin
-     * @param transactionCount pocet pozadavku ktere projdou simulaci
+     * @param distribution random numbers distribution
+     * @param transactionCount the count of the simulation transactions which are going go through the system
      */
-    private static void runSimulation(Distribution distribution, int transactionCount) {
+    private static void startSimulation(Distribution distribution, int transactionCount) {
         try {
             SimulationParameters parameters = loadParameters();
             parameters.setDistribution(distribution);
             if (distribution == Distribution.EXPONENTIAL) {
                 runSimulation(parameters, transactionCount);
             } else {
-                parameters.setC(DEFAULT_COEF_1);
+                parameters.setVarianceCoefficient(VARIANCE_COEFFICIENT_1);
                 runSimulation(parameters, transactionCount);
-                System.out.println(LINE);
-                parameters.setC(DEFAULT_COEF_2);
+                System.out.println(ROW);
+                parameters.setVarianceCoefficient(VARIANCE_COEFFICIENT_2);
                 runSimulation(parameters, transactionCount);
-                System.out.println(LINE);
-                parameters.setC(DEFAULT_COEF_3);
+                System.out.println(ROW);
+                parameters.setVarianceCoefficient(VARIANCE_COEFFICIENT_3);
                 runSimulation(parameters, transactionCount);
             }
         } catch (JSimException e) {
             e.printStackTrace();
             e.printComment(System.err);
         } catch (IOException | NumberFormatException e) {
-            System.err.println("Nepodarilo se nacist parametry simulace z konfiguracniho souboru.");
+            System.err.println("Error in loading of the parameters form the configuration file");
             e.printStackTrace();
         }
     }
     
     
     /**
-     * Spusti simulaci s danymi parametry.
+     * Starts the simulation with particular parameters.
      * 
-     * @param parameters parametry simulace
-     * @param transactionCount pocet pozadavku, ktere projdou simulaci
+     * @param parameters simulation parameters
+     * @param transactionCount transaction count which are going to go through the system
      * @throws JSimException
      */
     private static void runSimulation(SimulationParameters parameters, int transactionCount) throws JSimException {
-        System.out.println("Rozdeleni nahodnych velicin: " + 
-                (parameters.getDistribution() == Distribution.EXPONENTIAL ? "EXPONENCIALNI" : "NORMALNI"));
+        System.out.println("The distribution of random numbers: " + 
+                (parameters.getDistribution() == Distribution.EXPONENTIAL ? "EXPONENTIAL" : "NORMAL"));
         if (parameters.getDistribution() == Distribution.GAUSSIAN)
-            System.out.println("Koeficient variace: " + parameters.getC());
+            System.out.println("Variance coefficient: " + parameters.getVarianceCoefficient());
         
-        QueingNetworkSimulation simulation = new QueingNetworkSimulation(parameters);
-        SimulationStatistics stats = simulation.run(transactionCount);
+        QueueSimulation simulation = new QueueSimulation(parameters);
+        SimulationStats stats = simulation.run(transactionCount);
         printStatistics(stats);
     }
     
     
     /**
-     * Tiskne instrukce k pouziti programu.
+     * Prints introduction information.
      */
-    private static void printUsage() {
-        System.out.println("Pouziti: qn-simulation [ <pocetPozadavku> { EXP | GAUSS } ]");
-        System.out.println("         qn-simulation --test-generator <pocetCisel> <stredniHodnota> <smerodatnaOdchylka>\n");
-        System.out.println("Pri spusteni bez parametru se spusti simulace pro 100 000 pozadavku nejdrive s exponencialnim\n"
-                + "a pote s normalnim rozdelenim nahodnych velicin.");
-        System.out.println("Prepinac --test-generator slouzi ke spusteni testu generatoru nahodnych cisel s normalnim rozdelenim.");
+    private static void printIntroduction() {
+        System.out.println("Usage: qn-simulation [ <transactionCount> { EXP | GAUSS } ]");
+        System.out.println("         qn-simulation --test-generator <numberCount> <meanValue> <standardDeviation>\n");
+        System.out.println("If the simulation is started without parameters it will starts with numberCount = 100000. Firstly it will start with the expenencional distribution\n"
+                + "afterwards with the normal distribution of random numbers.");
+        System.out.println("Switcher --test-generator is used for the start of the Gaussian random values generator.");
     }
     
     
     /**
-     * Tiskne statistiky namerene pri simulaci.
-     * @param stats namerene statistiky
+     * Prints statistics measured during the simulation.
+     * @param stats measured statistics
      */
-    private static void printStatistics(SimulationStatistics stats) {
-        System.out.println("Namerene statistiky:");
+    private static void printStatistics(SimulationStats stats) {
+        System.out.println("Measured statistics:");
         
-        System.out.println("\n" + HIGHLIGHT + " Server 1 " + HIGHLIGHT);
-        System.out.println("frekvence toku = " + stats.getThroughputRate(0));
-        System.out.println("zatizeni = " + stats.getLoad(0));
+        System.out.println("\n" + HIGHLIGHT_ROW + " Server 1 " + HIGHLIGHT_ROW);
+        System.out.println("Stream frequency = " + stats.getThroughputRate(0));
+        System.out.println("Load = " + stats.getLoad(0));
         System.out.println("Tq = " + stats.getTqi(0));
         System.out.println("Lq = " + stats.getLqi(0));
         
-        System.out.println("\n" + HIGHLIGHT + " Server 2 " + HIGHLIGHT);
-        System.out.println("frekvence toku = " + stats.getThroughputRate(1));
-        System.out.println("zatizeni = " + stats.getLoad(1));
+        System.out.println("\n" + HIGHLIGHT_ROW + " Server 2 " + HIGHLIGHT_ROW);
+        System.out.println("Stream frequency = " + stats.getThroughputRate(1));
+        System.out.println("Load = " + stats.getLoad(1));
         System.out.println("Tq = " + stats.getTqi(1));
         System.out.println("Lq = " + stats.getLqi(1));
         
-        System.out.println("\n" + HIGHLIGHT + " Server 3 " + HIGHLIGHT);
-        System.out.println("frekvence toku = " + stats.getThroughputRate(2));
-        System.out.println("zatizeni = " + stats.getLoad(2));
+        System.out.println("\n" + HIGHLIGHT_ROW + " Server 3 " + HIGHLIGHT_ROW);
+        System.out.println("Stream frequency = " + stats.getThroughputRate(2));
+        System.out.println("Load = " + stats.getLoad(2));
         System.out.println("Tq = " + stats.getTqi(2));
         System.out.println("Lq = " + stats.getLqi(2));
         
-        System.out.println("\n" + HIGHLIGHT + " Server 4 " + HIGHLIGHT);
-        System.out.println("frekvence toku = " + stats.getThroughputRate(3));
-        System.out.println("zatizeni = " + stats.getLoad(3));
+        System.out.println("\n" + HIGHLIGHT_ROW + " Server 4 " + HIGHLIGHT_ROW);
+        System.out.println("Stream frequency = " + stats.getThroughputRate(3));
+        System.out.println("Load = " + stats.getLoad(3));
         System.out.println("Tq = " + stats.getTqi(3));
         System.out.println("Lq = " + stats.getLqi(3));
         
-        System.out.println("\n" + HIGHLIGHT + " Cely system " + HIGHLIGHT);
+        System.out.println("\n" + HIGHLIGHT_ROW + " The whole system " + HIGHLIGHT_ROW);
         System.out.println("Tq = " + stats.getTq());
         System.out.println("Lq = " + stats.getLq());
         
-        System.out.println("\n" + HIGHLIGHT + " Doba cinnosti serveru 2 " + HIGHLIGHT);
-        System.out.println("E(X) = " + stats.getOperationStatsServer2().getMeanValue());
-        System.out.println("D(X) = " + stats.getOperationStatsServer2().getVariance());
-        System.out.println("\n" + stats.getOperationStatsServer2().getHistogram());
+        System.out.println("\n" + HIGHLIGHT_ROW + " Stream tracking " + HIGHLIGHT_ROW);
+        System.out.println("E(X) = " + stats.getProbeStats().getMeanValue());
+        System.out.println("D(X) = " + stats.getProbeStats().getVariance());
+        System.out.println("\n" + stats.getProbeStats().getGraph());
     }
     
     
     /**
-     * Nacte parametry site front z konfiguracniho souboru {@link #CONFIG_FILE}.
+     * Loads the queue network parameters from the configuration file {@link #CONFIGURATION_FILE_NAME}.
      * 
-     * @return parametry site front
+     * @return queue network parameters
      * @throws FileNotFoundException
      * @throws IOException
      * @throws NumberFormatException
      */
     private static SimulationParameters loadParameters() throws FileNotFoundException, IOException, NumberFormatException {
         Properties prop = new Properties();
-        prop.load(Main.class.getClassLoader().getResourceAsStream(CONFIG_FILE));
+        prop.load(Main.class.getClassLoader().getResourceAsStream(CONFIGURATION_FILE_NAME));
 
         SimulationParameters params = new SimulationParameters();
         params.setLambda1(Double.parseDouble(prop.getProperty("lambda1")));
@@ -218,8 +219,8 @@ public class Main {
         params.setTs2(Double.parseDouble(prop.getProperty("Ts2")));
         params.setTs3(Double.parseDouble(prop.getProperty("Ts3")));
         params.setTs4(Double.parseDouble(prop.getProperty("Ts4")));
-        params.setP2(Double.parseDouble(prop.getProperty("p2")));
-        params.setP3(Double.parseDouble(prop.getProperty("p3")));
+        params.setPrb2(Double.parseDouble(prop.getProperty("p2")));
+        params.setPrb3(Double.parseDouble(prop.getProperty("p3")));
         
         return params;
     }

@@ -9,42 +9,47 @@ import cz.zcu.fav.kiv.jsim.JSimSimulation;
 import cz.zcu.fav.kiv.jsim.JSimSimulationAlreadyTerminatedException;
 import cz.zcu.fav.kiv.jsim.JSimSystem;
 import cz.zcu.fav.kiv.jsim.JSimTooManyProcessesException;
-import simulation.nodes.AbstractServer;
+import nodes.AbstractServer;
+
+
+
+
+
 
 
 /**
- * Objekt Spion sluzi k zachycovani statistik o systemu.
- * Sleduje stredni pocet pozadavku v systemu. V nepravidelnych
- * intervalech zjistuje stav systemu a aktualizuje si sledovane statistiky.
+ * The tracker object is used for tracking of the system statistics.
+ * Tracks the mean transactions count in the system. In no periodic intervals finds out the state of the system and updates the tracked statistics.
  *
  * @author Miroslav Vozabal
  */
-public class Spy extends JSimProcess {
+public class Tracker extends JSimProcess {
     
-    /** Stredni frekvence sledovani systemu. */
+    /** The mean frequency of the system tracking. */
     public static final double LAMBDA = 2; 
     
-    /** Stredni pocet pozadavku v systemu. */
+    /** The mean transaction count in the system. */
     private double meanTransactionCount = 0;
     
-    /** Pocitadlo poctu provedenych vzorkovani systemu. */
-    private int counter = 0;
+    /** The counter of performed samplings of the system. */
+    private int samplingsCounter = 0;
     
-    /** Seznam serveru, ktere jsou sledovany. */
+    /** The list of the tracked servers. */
     private List<AbstractServer> servers;
 
 
     
+    
     /**
-     * Vytvori novy objekt spion.
-     * @param name - nazev objektu
-     * @param parent - rodicovska simulace
-     * @param servers - sledovane servery (vsechny servery v simulaci)
+     * Creates a new tracking object.
+     * @param name - tracker's name
+     * @param parent - the parent simulation
+     * @param servers - all tracked servers in the simulation.
      * @throws JSimSimulationAlreadyTerminatedException
      * @throws JSimInvalidParametersException
      * @throws JSimTooManyProcessesException
      */
-    public Spy(String name, JSimSimulation parent, AbstractServer... servers) 
+    public Tracker(String name, JSimSimulation parent, AbstractServer... servers) 
             throws JSimSimulationAlreadyTerminatedException, JSimInvalidParametersException, JSimTooManyProcessesException {
         super(name, parent);
         this.servers = new ArrayList<AbstractServer>(servers.length);
@@ -53,36 +58,40 @@ public class Spy extends JSimProcess {
     }
     
     
+    
     /**
-     * Vraci stredni pocet pozadavku v systemu (v prubehu cele simulace).
-     * @return stredni pocet pozadavku v systemu
+     * Returns the mean count of the transactions in the system during all the simulation time.
+     * @return the mean count of the transactions in the system
      */
     public double getMeanTransactionCount() {
         return this.meanTransactionCount;
     }
     
     
+    
     /**
-     * V nepravidelnych intervalech provadi vzorkovani systemu a aktualizuje
-     * sledovanou statistiku (stredni pocet pozadavku v systemu).
+     * In no periodical intervals processes samplings and updates the tracked statistic (The mean transaction number of the transactions in the system)
+     * 
      */
     @Override
     protected void life() {
-        long currentL;
+        long currentLife;
         
         try {
             while (true) {
                 hold(Math.abs(JSimSystem.negExp(LAMBDA)));
-                currentL = 0;
+                currentLife = 0;
                 for (AbstractServer server : servers)
-                    currentL += server.getTransactionCount();
-                meanTransactionCount = (meanTransactionCount * counter + currentL) / (counter + 1);
-                counter++;
+                    currentLife += server.getTransactionCount();
+                
+                meanTransactionCount = (meanTransactionCount * samplingsCounter + currentLife) / (samplingsCounter + 1);
+                samplingsCounter++;
             }
         } catch (JSimException e) {
             e.printStackTrace();
         }
     }
-
-
 }
+
+
+

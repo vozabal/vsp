@@ -1,44 +1,45 @@
 package simulation;
 
-import simulation.QueingNetworkSimulation.Distribution;
+import simulation.QueueSimulation.Distribution;
+
 
 
 /**
- * Objekt nesouci parametry simulovane site front.
+ * Represents and object that preservers the simulated queue network parameters.
  *
  * @author Miroslav Vozabal
  */
 public class SimulationParameters {
     
-    /** Rozdeleni nahodnych velicin (prichody pozadavku, doby obsluhy). */
+    /** The random values distribution. Arrivals of the transactions (times of the services). */
     private Distribution distribution;
     
-    /** Stredni frekvence vstupniho toku 1. */
+    /** The mean frequency of the entry stream 1. */
     private double lambda1;
     
-    /** Stredni frekvence vstupniho toku 2. */
+    /** The mean frequency of the entry stream 2. */
     private double lambda2;
     
-    /** Stredni doba obsluhy na serveru 1. */
+    /** The mean frequency of the service of the server 1. */    
     private double ts1;
     
-    /** Stredni doba obsluhy na serveru 2. */
+    /** The mean frequency of the service of the server 2. */
     private double ts2;
     
-    /** Stredni doba obsluhy na serveru 3. */
+    /** The mean frequency of the service of the server 3. */
     private double ts3;
 
-    /** Stredni doba obsluhy na serveru 4. */
+    /** The mean frequency of the service of the server 4. */
     private double ts4;
     
-    /** Pravdepodobnost predani pozadavku ze serveru 2 do serveru 3. */
-    private double p2;
+    /** The probability of hanging a transaction over from the server 2 to the server 3. */
+    private double prb2;
     
-    /** Pravdepodobnost predani pozadavku ze serveru 3 do serveru 4. */
-    private double p3;
+    /** The probability of hanging a transaction over from the server 3 to the server 4. */
+    private double prb3;
     
-    /** Koeficient variace (pouze pro normalni rozdeleni nahodnych velicin). */
-    private double c;
+    /** The coefficient of the variance (only for Gaussian distribution). */
+    private double varianceCoefficient;
 
     
     /**
@@ -154,50 +155,50 @@ public class SimulationParameters {
 
     
     /**
-     * @return the p2
+     * @return the prb2
      */
-    public double getP2() {
-        return p2;
+    public double getPrb2() {
+        return prb2;
     }
 
     
     /**
-     * @param p2 the p2 to set
+     * @param prb2 the prb2 to set
      */
-    public void setP2(double p2) {
-        this.p2 = p2;
+    public void setPrb2(double prb2) {
+        this.prb2 = prb2;
     }
 
     
     /**
-     * @return the p3
+     * @return the prb3
      */
-    public double getP3() {
-        return p3;
+    public double getPrb3() {
+        return prb3;
     }
 
     
     /**
-     * @param p3 the p3 to set
+     * @param prb3 the prb3 to set
      */
-    public void setP3(double p3) {
-        this.p3 = p3;
+    public void setPrb3(double prb3) {
+        this.prb3 = prb3;
     }
 
     
     /**
-     * @return the c
+     * @return the varianceCoefficient
      */
-    public double getC() {
-        return c;
+    public double getVarianceCoefficient() {
+        return varianceCoefficient;
     }
 
     
     /**
-     * @param c the c to set
+     * @param varianceCoefficient the varianceCoefficient to set
      */
-    public void setC(double c) {
-        this.c = c;
+    public void setVarianceCoefficient(double varianceCoefficient) {
+        this.varianceCoefficient = varianceCoefficient;
     }
 
 }

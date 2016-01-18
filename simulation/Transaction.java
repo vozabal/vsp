@@ -1,32 +1,39 @@
 package simulation;
 
 
+
+
+
 /**
- * Objekt nesouci informace spojene s pozadavkem.
+ * The object stores information bound up with a transaction.
  *
  * @author Miroslav Vozabal
  */
 public class Transaction {
     
-    /** Doba vytvoreni pozadavku (prichodu do systemu). */
-    private double creationTime;
+    /** The time of the transaction creation (arrival into the system). */
+    private double startTime;
 
     
+    
+    
     /**
-     * Vytvori novy pozadavek.
-     * @param creationTime - doba vytvoreni (prichodu do systemu)
+     * Creates a new transaction.
+     * @param creationTime - the time of the creation (arrival into the system).
      */
-    public Transaction(double creationTime) {
-        this.creationTime = creationTime;
+    public Transaction(double startTime) {
+        this.startTime = startTime;
     }
-
+    
+    
+    
     
     /**
-     * Vraci dobu prichodu pozadavku do systemu.
-     * @return doba prichodu pozadavku
+     * Returns the time of the transaction arrival into the system.
+     * @return the time of the transaction arrival
      */
-    public double getCreationTime() {
-        return creationTime;
+    public double getStartTime() {
+        return startTime;
     }
     
 }

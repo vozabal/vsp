@@ -1,4 +1,4 @@
-package simulation.nodes;
+package nodes;
 
 import cz.zcu.fav.kiv.jsim.JSimInvalidParametersException;
 import cz.zcu.fav.kiv.jsim.JSimSimulation;
@@ -9,22 +9,22 @@ import cz.zcu.fav.kiv.jsim.JSimTooManyProcessesException;
 
 
 /**
- * Server s exponencialnim rozdelenim doby vyrizeni pozadavku.
+ * The server with the exponential distribution of the transaction processing.
  *
  * @author Miroslav Vozabal
  */
 public class ExponentialServer extends AbstractServer {
     
-    /** Stredni frekvence vyrizeni pozadavku - parametr &lambda; exponencialniho rozdeleni. */
+	/** The mean value of the transaction processing. Parameter &lambda; of the exponential distribution. */ 
     private double lambda;
 
     
     /**
-     * Vytvori novy server s exponencialnim rozdelenim pravdepodobnosti.
+     * Creates a new server with Exponential probability distribution.
      * 
-     * @param name - jmeno uzlu
-     * @param parent - rodicovska simulace
-     * @param lambda - stredni frekvence vyrizeni pozadavku
+     * @param name - the node name
+     * @param parent - the parent simulation
+     * @param lambda - the mean value of the transaction processing
      * @throws JSimSimulationAlreadyTerminatedException
      * @throws JSimInvalidParametersException
      * @throws JSimTooManyProcessesException
@@ -39,18 +39,18 @@ public class ExponentialServer extends AbstractServer {
     
     
     /**
-     * Vytvori novy server s exponencialnim rozdelenim pravdepodobnosti.
+     * Creates a new server with Exponential probability distribution.
      * 
-     * @param name - jmeno uzlu
-     * @param parent - rodicovska simulace
-     * @param lambda - stredni frekvence vyrizeni pozadavku
-     * @param nextReceiver - nasledujici uzel
+     * @param name - the node name
+     * @param parent - the parent simulation
+     * @param lambda - the mean value of the transaction processing
+     * @param nextReceiver - the next node
      * @throws JSimSimulationAlreadyTerminatedException
      * @throws JSimInvalidParametersException
      * @throws JSimTooManyProcessesException
      * @throws JSimTooManyHeadsException
      */
-    public ExponentialServer(String name, JSimSimulation parent, double lambda, Receiver nextReceiver)
+    public ExponentialServer(String name, JSimSimulation parent, double lambda, IReceiver nextReceiver)
             throws JSimSimulationAlreadyTerminatedException, JSimInvalidParametersException,
             JSimTooManyProcessesException, JSimTooManyHeadsException {
         super(name, parent, nextReceiver);
@@ -59,11 +59,12 @@ public class ExponentialServer extends AbstractServer {
 
     
     /**
-     * Generuje nahodnou dobu trvani vyrizeni pozadavku s exponencialnim rozdelenim.
+     * Generates a random time of the transaction processing with Exponential probability distribution.
      */
     @Override
     protected double workDuration() {
-        return Math.abs(JSimSystem.negExp(lambda));
+    	double randomNumber = Math.abs (JSimSystem.negExp(lambda));
+        return randomNumber;
     }
 
 }

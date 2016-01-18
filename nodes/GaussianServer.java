@@ -1,34 +1,35 @@
-package simulation.nodes;
+package nodes;
 
 import cz.zcu.fav.kiv.jsim.JSimInvalidParametersException;
 import cz.zcu.fav.kiv.jsim.JSimSimulation;
 import cz.zcu.fav.kiv.jsim.JSimSimulationAlreadyTerminatedException;
 import cz.zcu.fav.kiv.jsim.JSimTooManyHeadsException;
 import cz.zcu.fav.kiv.jsim.JSimTooManyProcessesException;
-import generator.RandomNumber;
+import generator.NormalDistributionGenerator;
 
 
 /**
- * Server s gaussovskym rozdelenim doby vyrizeni pozadavku.
+ * The server with a Gaussian distribution of the transaction processing.
  *
  * @author Miroslav Vozabal
  */
 public class GaussianServer extends AbstractServer {
     
-    /** Stredni doba vyrizeni pozadavku. */
+    /** The mean value of the transaction processing. */
     private final double meanValue;
     
-    /** Smerodatna odchylka stredni doby vyrizeni pozadavku. */
+    /** The standard deviation. */
     private final double standardDeviation;
     
     
+    
     /**
-     * Vytvori novy server s gaussovskym rozdelenim pravdepodobnosti.
+     * Creates a new server with Gaussian probability distribution.
      * 
-     * @param name - jmeno uzlu
-     * @param parent - rodicovska simulace
-     * @param meanValue - stredni doba vyrizeni pozadavku
-     * @param standardDeviation - smerodatna odchylka stredni doby vyrizeni pozadavku
+     * @param name - the node name
+     * @param parent - the parent simulation
+     * @param meanValue - the mean value of the transaction processing
+     * @param standardDeviation - the standardDeviation of the transaction processing
      * @throws JSimSimulationAlreadyTerminatedException
      * @throws JSimInvalidParametersException
      * @throws JSimTooManyProcessesException
@@ -42,20 +43,21 @@ public class GaussianServer extends AbstractServer {
     }
     
     
+    
     /**
-     * Vytvori novy server s gaussovskym rozdelenim pravdepodobnosti.
+     * Creates a new server with Gaussian probability distribution.
      * 
-     * @param name - jmeno uzlu
-     * @param parent - rodicovska simulace
-     * @param meanValue - stredni doba vyrizeni pozadavku
-     * @param standardDeviation - smerodatna odchylka stredni doby vyrizeni pozadavku
-     * @param nextReceiver - nasledujici uzel
+     * @param name - the node name
+     * @param parent - the parent simulation
+     * @param meanValue - the mean value of the transaction processing
+     * @param standardDeviation - the standardDeviation of the transaction processing
+     * @param nextReceiver - the next node
      * @throws JSimSimulationAlreadyTerminatedException
      * @throws JSimInvalidParametersException
      * @throws JSimTooManyProcessesException
      * @throws JSimTooManyHeadsException
      */
-    public GaussianServer(String name, JSimSimulation parent, double meanValue, double standardDeviation, Receiver nextReceiver)
+    public GaussianServer(String name, JSimSimulation parent, double meanValue, double standardDeviation, IReceiver nextReceiver)
             throws JSimSimulationAlreadyTerminatedException, JSimInvalidParametersException, JSimTooManyProcessesException, JSimTooManyHeadsException {
         super(name, parent, nextReceiver);
         this.meanValue = meanValue;
@@ -64,11 +66,12 @@ public class GaussianServer extends AbstractServer {
     
     
     /**
-     * Generuje nahodnou dobu trvani vyrizeni pozadavku s gaussovskym rozdelenim.
+     * Generates a random time of the transaction processing with Gaussian probability distribution.
      */
     @Override
     protected double workDuration() {
-        return Math.abs(RandomNumber.gauss(meanValue, standardDeviation));
+    	double randomNumber = Math.abs(NormalDistributionGenerator.generateGauss(meanValue, standardDeviation));
+        return randomNumber;
     }
     
 
